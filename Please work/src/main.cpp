@@ -7,6 +7,15 @@
  * When this callback is fired, it will toggle line 2 of the LCD text between
  * "I was pressed!" and nothing.
  */
+
+pros::Controller master(pros::E_CONTROLLER_MASTER);
+
+// Left side: ports 1, 2, 3
+pros::MotorGroup left_mg({-1, -2, -3});
+
+// Right side: -4, -5, -6
+pros::MotorGroup right_mg({4, 5, 6});
+
 void on_center_button() {
 	static bool pressed = false;
 	pressed = !pressed;
@@ -25,7 +34,7 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	pros::lcd::set_text(1, "testing! 12");
 
 	pros::lcd::register_btn1_cb(on_center_button);
 }
@@ -74,22 +83,45 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1, -2, 3});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
-	pros::MotorGroup right_mg({-4, 5, -6});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
 
 
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
 
-		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(dir - turn);                      // Sets left motor voltage
-		right_mg.move(dir + turn);                     // Sets right motor voltage
-		pros::delay(20);                               // Run for 20 ms then update
-	}
+
+
+
+void opcontrol(){
+
+    const int DEAD_BAND = 5;
+
+    while (true) {
+        // Read joysticks
+        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+
+        // Prevent joystick drift
+        if (abs(forwardSpeed) < DEAD_BAND) {
+            forwardSpeed = 0;
+        }
+
+        if (abs(turnSpeed) < DEAD_BAND) {
+            turnSpeed = 0;
+        }
+
+        // Arcade drive calculations
+        int leftSpeed = forwardSpeed + turnSpeed;
+        int rightSpeed = forwardSpeed - turnSpeed;
+
+        // Clamp to valid controller range (-127 to 127)
+        if (leftSpeed > 127) leftSpeed = 127;
+        if (leftSpeed < -127) leftSpeed = -127;
+
+        if (rightSpeed > 127) rightSpeed = 127;
+        if (rightSpeed < -127) rightSpeed = -127;
+
+        // Move motors
+        left_mg.move(leftSpeed);
+        right_mg.move(rightSpeed);
+
+        pros::delay(20);
+    }
 }
