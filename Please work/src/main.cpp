@@ -16,6 +16,9 @@ pros::MotorGroup left_mg({-1, -2, -3});
 // Right side: -4, -5, -6
 pros::MotorGroup right_mg({4, 5, 6});
 
+// Motor 2 for independent control
+pros::Motor motor2(-2);
+
 void on_center_button() {
 	static bool pressed = false;
 	pressed = !pressed;
@@ -121,8 +124,16 @@ void opcontrol(){
         // Move motors
         left_mg.move(leftSpeed);
         right_mg.move(rightSpeed);
+        
+        // Check if bumper switch button is pressed
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            motor2.move(20);
+        }
         //dhfsoidhfo
         //test for jakeyyy
+        
+
+        
 
         pros::delay(20);
     }
