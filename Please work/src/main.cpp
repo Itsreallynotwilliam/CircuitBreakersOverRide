@@ -121,6 +121,8 @@ void opcontrol(){
         // Move motors
         left_mg.move(leftSpeed);
         right_mg.move(rightSpeed);
+        //dhfsoidhfo
+        //test for jakeyyy
 
         pros::delay(20);
     }
