@@ -17,7 +17,12 @@ pros::MotorGroup left_mg({-1, -2, -3});
 // Right side: -4, -5, -6
 pros::MotorGroup right_mg({4, 5, 6});
 
+<<<<<<< Updated upstream
+// Motor 2 for independent control
+pros::Motor motor2(-2);
+=======
 pros::Motor motor20(20);
+>>>>>>> Stashed changes
 
 void on_center_button() {
 	static bool pressed = false;
@@ -124,18 +129,26 @@ void opcontrol(){
         // Move motors
         left_mg.move(leftSpeed);
         right_mg.move(rightSpeed);
+<<<<<<< Updated upstream
         
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-        motor20.move(20);
-    } else {
-        motor20.move(0);
-    }
+        // Check if bumper switch button is pressed
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            motor2.move(20);
+        }
+        //dhfsoidhfo
+        //test for jakeyyy
         
 
         
+<<<<<<< HEAD
    
         //dhfsoidhfo
         //test for jakeyyy
+=======
+=======
+        motor20.move(127);
+>>>>>>> Stashed changes
+>>>>>>> parent of e7585df (DONT USE NEEDS TO REVERT)
 
         pros::delay(20);
     }
