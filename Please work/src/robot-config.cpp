@@ -5,7 +5,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::MotorGroup left_mg({-1, -2, -3});
 pros::MotorGroup right_mg({4, 5, 6});
 pros::Motor motor20(20);
-pros::IMU imu(11);
+pros::Imu imu(11);
 
 lemlib::Drivetrain drivetrain(
     &left_mg,
@@ -21,7 +21,7 @@ lemlib::OdomSensors sensors(
     nullptr, 
     nullptr, 
     nullptr, 
-    imu
+    &imu
 );
 
 // kP, kI, kD, windupRange, smallError, smallErrorTimeout, largeError, largeErrorTimeout, slew
