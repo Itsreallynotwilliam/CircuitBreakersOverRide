@@ -87,9 +87,6 @@ void opcontrol() {
         int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
-        // LemLib's arcade() applies its own drive curve/deadband internally,
-        // so the manual DEAD_BAND filtering and leftSpeed/rightSpeed math
-        // from before are no longer needed.
         chassis.arcade(forwardSpeed, turnSpeed);
 
         // Jakes test

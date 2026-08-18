@@ -1,9 +1,11 @@
 #include "robot-config.h"
+#include "pros/imu.hpp"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::MotorGroup left_mg({-1, -2, -3});
 pros::MotorGroup right_mg({4, 5, 6});
 pros::Motor motor20(20);
+pros::IMU imu(11);
 
 lemlib::Drivetrain drivetrain(
     &left_mg,
@@ -15,7 +17,11 @@ lemlib::Drivetrain drivetrain(
 );
 
 lemlib::OdomSensors sensors(
-    nullptr, nullptr, nullptr, nullptr, nullptr
+    nullptr, 
+    nullptr, 
+    nullptr, 
+    nullptr, 
+    imu
 );
 
 // kP, kI, kD, windupRange, smallError, smallErrorTimeout, largeError, largeErrorTimeout, slew
