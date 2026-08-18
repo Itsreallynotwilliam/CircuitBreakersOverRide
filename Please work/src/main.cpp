@@ -1,6 +1,6 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "pros/motors.hpp"
+#include "robot-config.h"
 
 /**
  * A callback function for LLEMU's center button.
@@ -9,15 +9,6 @@
  * "I was pressed!" and nothing.
  */
 
-pros::Controller master(pros::E_CONTROLLER_MASTER);
-
-// Left side: ports 1, 2, 3
-pros::MotorGroup left_mg({-1, -2, -3});
-
-// Right side: -4, -5, -6
-pros::MotorGroup right_mg({4, 5, 6});
-
-pros::Motor motor20(20);
 
 void on_center_button() {
 	static bool pressed = false;
@@ -40,6 +31,8 @@ void initialize() {
 	pros::lcd::set_text(1, "testing! 12");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
+	chassis.calibrate(); // sets up the chassis + odometry sensors, safe to call even without sensors installed
 }
 
 /**
@@ -87,56 +80,66 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 
-
-
-
-
-
-void opcontrol(){
-
-    const int DEAD_BAND = 5;
+void opcontrol() {
 
     while (true) {
         // Read joysticks
         int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
-        // Prevent joystick drift
-        if (abs(forwardSpeed) < DEAD_BAND) {
-            forwardSpeed = 0;
+        // LemLib's arcade() applies its own drive curve/deadband internally,
+        // so the manual DEAD_BAND filtering and leftSpeed/rightSpeed math
+        // from before are no longer needed.
+        chassis.arcade(forwardSpeed, turnSpeed);
+
+        // Jakes test
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            motor20.move(20);
+        } else {
+            motor20.move(0);
         }
-
-        if (abs(turnSpeed) < DEAD_BAND) {
-            turnSpeed = 0;
-        }
-
-        // Arcade drive calculations
-        int leftSpeed = forwardSpeed + turnSpeed;
-        int rightSpeed = forwardSpeed - turnSpeed;
-
-        // Clamp to valid controller range (-127 to 127)
-        if (leftSpeed > 127) leftSpeed = 127;
-        if (leftSpeed < -127) leftSpeed = -127;
-
-        if (rightSpeed > 127) rightSpeed = 127;
-        if (rightSpeed < -127) rightSpeed = -127;
-
-        // Move motors
-        left_mg.move(leftSpeed);
-        right_mg.move(rightSpeed);
-        
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-        motor20.move(20);
-    } else {
-        motor20.move(0);
-    }
-        
-
-        
-   
-        //dhfsoidhfo
-        //test for jakeyyy
 
         pros::delay(20);
     }
 }
+
+
+
+
+
+/* ----------------------------------------------------------------------
+ * Old manual arcade drive, kept here for reference / comparison.
+ * Not used since chassis.arcade() above replaces it.
+ * ----------------------------------------------------------------------
+
+void opcontrol_manual() {
+    const int DEAD_BAND = 5;
+
+    while (true) {
+        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+
+        if (abs(forwardSpeed) < DEAD_BAND) forwardSpeed = 0;
+        if (abs(turnSpeed) < DEAD_BAND) turnSpeed = 0;
+
+        int leftSpeed = forwardSpeed + turnSpeed;
+        int rightSpeed = forwardSpeed - turnSpeed;
+
+        if (leftSpeed > 127) leftSpeed = 127;
+        if (leftSpeed < -127) leftSpeed = -127;
+        if (rightSpeed > 127) rightSpeed = 127;
+        if (rightSpeed < -127) rightSpeed = -127;
+
+        left_mg.move(leftSpeed);
+        right_mg.move(rightSpeed);
+
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            motor20.move(20);
+        } else {
+            motor20.move(0);
+        }
+
+        pros::delay(20);
+    }
+}
+---------------------------------------------------------------------- */
