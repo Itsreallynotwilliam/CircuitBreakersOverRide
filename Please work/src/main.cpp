@@ -1,5 +1,7 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "pros/misc.h"
+#include "pros/misc.hpp"
 #include "robot-config.h"
 
 /**
@@ -95,8 +97,19 @@ void opcontrol() {
         } else {
             motor20.move(0);
         }
+        
+        // Right Trigger turns claw on
+        static bool claw_state = false;
+        static bool x_was_pressed = false;
 
+        bool x_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
+        if (x_pressed && !x_was_pressed) {
+            claw_state = !claw_state;
+            claw.set_value(claw_state);
+        }
+        x_was_pressed = x_pressed;
         pros::delay(20);
+
     }
 }
 
