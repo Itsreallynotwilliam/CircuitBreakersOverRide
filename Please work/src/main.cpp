@@ -2,6 +2,7 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/misc.h"
 #include "pros/misc.hpp"
+#include "pros/motors.h"
 #include "robot-config.h"
 
 /**
@@ -108,7 +109,23 @@ void opcontrol() {
             claw.set_value(claw_state);
         }
         x_was_pressed = x_pressed;
+
+        static bool claw_state2 = false;
+        static bool y_was_pressed = false;
+
+        bool y_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
+        if (y_pressed && !y_was_pressed) {
+            claw_state2 = !claw_state2;
+            long_claw.set_value(claw_state2);
+        }
+        y_was_pressed = y_pressed;
+
+        pros:c:::motor_move_velocity(motor1, 200)
+
+        
         pros::delay(20);
+
+
 
     }
 }
