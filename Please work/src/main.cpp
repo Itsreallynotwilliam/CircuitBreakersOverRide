@@ -120,7 +120,7 @@ void opcontrol() {
         }
         y_was_pressed = y_pressed;
 
-        pros:c:::motor_move_velocity(motor1, 200)
+        motor1.move_velocity(200);
 
         
         pros::delay(20);
