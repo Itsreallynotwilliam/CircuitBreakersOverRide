@@ -2,8 +2,9 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/misc.h"
 #include "pros/misc.hpp"
-#include "pros/motors.h"
 #include "robot-config.h"
+#include "pneumatics.h"
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -31,7 +32,7 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "testing! 12");
+	pros::lcd::set_text(1, "Julia");
 
 	pros::lcd::register_btn1_cb(on_center_button);
 
@@ -84,89 +85,25 @@ void autonomous() {}
  */
 
 void opcontrol() {
-
-    while (true) {
-        // Read joysticks
-        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-
-        chassis.arcade(forwardSpeed, turnSpeed);
-
-        // Jakes test
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            motor20.move(20);
-        } else {
-            motor20.move(0);
-        }
-        
-        // Right Trigger turns claw on
-        static bool claw_state = false;
-        static bool x_was_pressed = false;
-
-        bool x_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
-        if (x_pressed && !x_was_pressed) {
-            claw_state = !claw_state;
-            claw.set_value(claw_state);
-        }
-        x_was_pressed = x_pressed;
-
-        static bool claw_state2 = false;
-        static bool y_was_pressed = false;
-
-        bool y_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
-        if (y_pressed && !y_was_pressed) {
-            claw_state2 = !claw_state2;
-            long_claw.set_value(claw_state2);
-        }
-        y_was_pressed = y_pressed;
-
-        motor1.move_velocity(200);
-
-        
-        pros::delay(20);
-
-
-
-    }
+	while (true) {
+		// Drive
+		int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+		int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+		chassis.arcade(forwardSpeed, turnSpeed);
+ 
+		// Jakes test
+		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+			motor20.move(20);
+		} else {
+			motor20.move(0);
+		}
+ 
+		// NEW: claw (X) and long claw (Y) now live in pneumatics.cpp
+		pneumatics_update(master);
+ 
+		motor1.move_velocity(200);
+ 
+		pros::delay(20);
+	}
 }
 
-
-
-
-
-/* ----------------------------------------------------------------------
- * Old manual arcade drive, kept here for reference / comparison.
- * Not used since chassis.arcade() above replaces it.
- * ----------------------------------------------------------------------
-
-void opcontrol_manual() {
-    const int DEAD_BAND = 5;
-
-    while (true) {
-        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-
-        if (abs(forwardSpeed) < DEAD_BAND) forwardSpeed = 0;
-        if (abs(turnSpeed) < DEAD_BAND) turnSpeed = 0;
-
-        int leftSpeed = forwardSpeed + turnSpeed;
-        int rightSpeed = forwardSpeed - turnSpeed;
-
-        if (leftSpeed > 127) leftSpeed = 127;
-        if (leftSpeed < -127) leftSpeed = -127;
-        if (rightSpeed > 127) rightSpeed = 127;
-        if (rightSpeed < -127) rightSpeed = -127;
-
-        left_mg.move(leftSpeed);
-        right_mg.move(rightSpeed);
-
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            motor20.move(20);
-        } else {
-            motor20.move(0);
-        }
-
-        pros::delay(20);
-    }
-}
----------------------------------------------------------------------- */   
