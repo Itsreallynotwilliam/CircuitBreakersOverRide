@@ -12,13 +12,6 @@
  * "I was pressed!" and nothing.
  */
 
-pros::Controller master(pros::E_CONTROLLER_MASTER);
-
-// Left side: ports 1, 2, 3
-pros::MotorGroup left_mg({-1, -2, -3});
-
-// Right side: -4, -5, -6
-pros::MotorGroup right_mg({4, 5, 6});
 
 void on_center_button() {
 	static bool pressed = false;
