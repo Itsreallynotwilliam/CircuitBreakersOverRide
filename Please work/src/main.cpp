@@ -30,15 +30,42 @@ void on_center_button() {
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+// initialize function. Runs on program startup
+
+// void initialize() {
+//     pros::lcd::initialize(); // initialize brain screen
+//     chassis.calibrate(); // calibrate sensors
+//     // print position to brain screen
+//     pros::Task screen_task([&]() {
+//         while (true) {
+//             // print robot location to the brain screen
+// 			pros::lcd::print(1, "Rotation Sensor: %i", horizontal_encoder.get_position());
+
+//             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+//             pros::lcd::print(2, "Y: %f", chassis.getPose().y); // y
+//             pros::lcd::print(3, "Theta: %f", chassis.getPose().theta); // heading
+//             // delay to save resources
+//             pros::delay(20);
+//         }
+//     });
+// }
 void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Julia");
+    pros::lcd::initialize();
 
-	pros::lcd::register_btn1_cb(on_center_button);
+    pros::Task screen_task([]() {
+        while (true) {
+            lemlib::Pose pose = chassis.getPose();
+            pros::lcd::print(1, "X: %.2f  Y: %.2f", pose.x, pose.y);
+            pros::lcd::print(2, "Theta: %.2f", pose.theta);
+            pros::lcd::print(3, "IMU: %.2f", imu.get_heading()); // remove if your IMU has a different name
+            pros::delay(50);
+        }
+    });
 
-	chassis.calibrate(); // sets up the chassis + odometry sensors, safe to call even without sensors installed
+    pros::lcd::set_text(5, "Calibrating...");
+    chassis.calibrate();   // keep the robot completely still here
+    pros::lcd::set_text(5, "Calibrated!");
 }
-
 /**
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
@@ -68,8 +95,14 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+    // 1. Reset the robot's coordinates to 0,0 heading 0
+    chassis.setPose(0, 0, 0); //
 
+    // 2. Command the robot to drive 15 inches straight forward 
+    // Arguments: X-coordinate, Y-coordinate, timeout in milliseconds
+    chassis.moveToPoint(0, 15, 4000); //
+}
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -85,25 +118,54 @@ void autonomous() {}
  */
 
 void opcontrol() {
-	while (true) {
-		// Drive
-		int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-		int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-		chassis.arcade(forwardSpeed, turnSpeed);
+
+    while (true) {
+        // Read joysticks
+		autonomous();
+        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+
+        chassis.arcade(forwardSpeed, turnSpeed);
+
+        // Jakes test
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            motor20.move(20);
+        } else {
+            motor20.move(0);
+        }
+        
+        // Right Trigger turns claw on
+        static bool claw_state = false;
+        static bool x_was_pressed = false;
+
+        bool x_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
+        if (x_pressed && !x_was_pressed) {
+            claw_state = !claw_state;
+            claw.set_value(claw_state);
+        }
+        x_was_pressed = x_pressed;
+
+        static bool claw_state2 = false;
+        static bool y_was_pressed = false;
+
+        bool y_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
+        if (y_pressed && !y_was_pressed) {
+            claw_state2 = !claw_state2;
+            long_claw.set_value(claw_state2);
+        }
+        y_was_pressed = y_pressed;
+
+        motor1.move_velocity(200);
+
+       
+	
+        
+
  
-		// Jakes test
-		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-			motor20.move(20);
-		} else {
-			motor20.move(0);
-		}
- 
-		// NEW: claw (X) and long claw (Y) now live in pneumatics.cpp
-		pneumatics_update(master);
- 
-		motor1.move_velocity(200);
- 
-		pros::delay(20);
-	}
+        pros::delay(20);
+
+
+
+    }
 }
 

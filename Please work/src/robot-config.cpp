@@ -1,61 +1,77 @@
 #include "robot-config.h"
-#include "pros/adi.hpp"
-#include "pros/imu.hpp"
+#include "main.h"
+// left motor group
+pros::MotorGroup left_motor_group({-1, -2, -3}, pros::MotorGears::green);
+// right motor group
+pros::MotorGroup right_motor_group({4, 5, 6}, pros::MotorGears::green);
 
+//controller 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_mg({-1, -2, -3});
-pros::MotorGroup right_mg({4, 5, 6});
 
+//bot motor 
 pros::Motor motor20(20);
 pros::Motor motor1(9);
 
-pros::Imu imu(11);
-
+//Pneumatics
 pros::adi::Pneumatics claw('G',false);
 pros::adi::Pneumatics long_claw('F',false);
-
-
-lemlib::Drivetrain drivetrain(
-    &left_mg,
-    &right_mg,
-    12,
-    lemlib::Omniwheel::NEW_325,
-    360,
-    2
+// drivetrain settings
+lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
+                              &right_motor_group, // right motor group
+                              12, // 10 inch track width
+                              lemlib::Omniwheel::NEW_325, // using new 4" omnis
+                              360, // drivetrain rpm is 360
+                              2 // horizontal drift is 2 (for now)
 );
 
-lemlib::OdomSensors sensors(
-    nullptr, 
-    nullptr, 
-    nullptr, 
-    nullptr, 
-    &imu
+// imu
+pros::Imu imu(12);
+// horizontal tracking wheel encoder
+pros::Rotation horizontal_encoder(-13);
+pros::Rotation vertical_encoder(15);
+
+// vertical tracking wheel encoder
+// horizontal tracking wheel
+lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, 0);
+// vertical tracking wheel
+lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_2, -4.75);
+
+// odometry settings
+lemlib::OdomSensors sensors(&vertical_tracking_wheel, // vertical tracking wheel 1, set to null
+                            nullptr, // vertical tracking wheel 2, set to nullptr as we are using IMEs
+                            &horizontal_tracking_wheel, // horizontal tracking wheel 1
+                            nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
+                            &imu // inertial sensor
 );
 
-// kP, kI, kD, windupRange, smallError, smallErrorTimeout, largeError, largeErrorTimeout, slew
-lemlib::ControllerSettings lateral_controller(
-    10,   // kP
-    0,    // kI
-    3,    // kD
-    3,    // windupRange
-    1,    // smallError (inches)
-    100,  // smallErrorTimeout (ms)
-    3,    // largeError (inches)
-    500,  // largeErrorTimeout (ms)
-    20    // slew (max acceleration)
+// lateral PID controller
+lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
+                                              0, // integral gain (kI)
+                                              3, // derivative gain (kD)
+                                              0, // anti windup
+                                              0, // small error range, in inches
+                                              0, // small error range timeout, in milliseconds
+                                              0, // large error range, in inches
+                                              0, // large error range timeout, in milliseconds
+                                              0 // maximum acceleration (slew)
+);
+// angular PID controller
+lemlib::ControllerSettings angular_controller(5, // proportional gain (kP)
+                                              0, // integral gain (kI)
+                                              10, // derivative gain (kD)
+                                              0, // anti windup
+                                              0, // small error range, in inches
+                                              0, // small error range timeout, in milliseconds
+                                              0, // large error range, in inches
+                                              0, // large error range timeout, in milliseconds
+                                              0 // maximum acceleration (slew)
 );
 
-lemlib::ControllerSettings angular_controller(
-    2,    // kP
-    0,    // kI
-    10,   // kD
-    3,    // windupRange
-    1,    // smallError (degrees)
-    100,  // smallErrorTimeout (ms)
-    3,    // largeError (degrees)
-    500,  // largeErrorTimeout (ms)
-    0     // slew (max acceleration)
+// create the chassis
+lemlib::Chassis chassis(drivetrain, // drivetrain settings
+                        lateral_controller, // lateral PID settings
+                        angular_controller, // angular PID settings
+                        sensors // odometry sensors
 );
 
-lemlib::Chassis chassis(drivetrain, lateral_controller, angular_controller, sensors);

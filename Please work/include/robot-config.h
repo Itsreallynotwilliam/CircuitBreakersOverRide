@@ -1,25 +1,27 @@
-#pragma once
+#ifndef _PROS_ROBOT_CONFIGS_H_
+#define _PRO_ROBOT_CONFIGS_H_
+#include "main.h"
 #include "lemlib/api.hpp"
-#include "pros/adi.hpp"
-#include "pros/imu.hpp"
-#include "pros/motor_group.hpp"
-#include "pros/motors.hpp"
-#include "pros/misc.hpp"
+
 
 extern pros::Controller master;
 
+//drivetrain stuff
+extern pros::MotorGroup left_motor_group;
+extern pros::MotorGroup right_motor_group;
+extern lemlib::Chassis chassis;
 
-extern pros::MotorGroup left_mg;
-extern pros::MotorGroup right_mg;
-
-
-extern::pros::Motor motor1;
+//bot motors
+extern pros::Motor motor1;
 extern pros::Motor motor20;
 
 
 
 extern pros::Imu imu;
 
+
+extern pros::Rotation horizontal_encoder;
+extern pros::Rotation vertical_encoder;
 
 
 
@@ -31,4 +33,4 @@ extern lemlib::Drivetrain drivetrain;
 extern lemlib::OdomSensors sensors;
 extern lemlib::ControllerSettings lateral_controller;
 extern lemlib::ControllerSettings angular_controller;
-extern lemlib::Chassis chassis;
+#endif
