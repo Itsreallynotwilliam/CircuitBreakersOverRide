@@ -2,8 +2,9 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/misc.h"
 #include "pros/misc.hpp"
-#include "pros/motors.h"
 #include "robot-config.h"
+#include "pneumatics.h"
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -168,43 +169,3 @@ void opcontrol() {
     }
 }
 
-
-
-
-
-/* ----------------------------------------------------------------------
- * Old manual arcade drive, kept here for reference / comparison.
- * Not used since chassis.arcade() above replaces it.
- * ----------------------------------------------------------------------
-
-void opcontrol_manual() {
-    const int DEAD_BAND = 5;
-
-    while (true) {
-        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-
-        if (abs(forwardSpeed) < DEAD_BAND) forwardSpeed = 0;
-        if (abs(turnSpeed) < DEAD_BAND) turnSpeed = 0;
-
-        int leftSpeed = forwardSpeed + turnSpeed;
-        int rightSpeed = forwardSpeed - turnSpeed;
-
-        if (leftSpeed > 127) leftSpeed = 127;
-        if (leftSpeed < -127) leftSpeed = -127;
-        if (rightSpeed > 127) rightSpeed = 127;
-        if (rightSpeed < -127) rightSpeed = -127;
-
-        left_mg.move(leftSpeed);
-        right_mg.move(rightSpeed);
-
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            motor20.move(20);
-        } else {
-            motor20.move(0);
-        }
-
-        pros::delay(20);
-    }
-}
----------------------------------------------------------------------- */   
