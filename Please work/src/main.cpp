@@ -3,7 +3,7 @@
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "robot-config.h"
-#include "pneumatics.h"
+// #include "pneumatics.h"
 
 
 /**
@@ -101,7 +101,7 @@ void autonomous() {
 
     // 2. Command the robot to drive 15 inches straight forward 
     // Arguments: X-coordinate, Y-coordinate, timeout in milliseconds
-    chassis.moveToPoint(0, 15, 4000); //
+    chassis.moveToPoint(0, 60, 4000); //
 }
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -118,10 +118,10 @@ void autonomous() {
  */
 
 void opcontrol() {
-
+    autonomous();
     while (true) {
         // Read joysticks
-		autonomous();
+		// autonomous();
         int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
