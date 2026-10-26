@@ -1,5 +1,6 @@
 #include "robot-config.h"
 #include "main.h"
+#include "pros/abstract_motor.hpp"
 // left motor group
 pros::MotorGroup left_motor_group({-1, -2, -3}, pros::MotorGears::green);
 // right motor group
@@ -9,9 +10,12 @@ pros::MotorGroup right_motor_group({4, 5, 6}, pros::MotorGears::green);
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 
-//bot motor 
-pros::Motor motor20(20);
-pros::Motor motor1(9);
+
+
+pros::Motor LeftLiftMotor(9,pros::MotorGears::red);
+pros::Motor RightLiftMotor(10,pros::MotorGears::red);
+
+
 
 //Pneumatics
 pros::adi::Pneumatics claw('G',false);

@@ -4,6 +4,7 @@
 #include "pros/misc.hpp"
 #include "robot-config.h"
 #include "pneumatics.h"
+#include "lift.h"
 
 
 /**
@@ -120,7 +121,7 @@ void autonomous() {
  */
 
 void opcontrol() {
-    autonomous();
+    // autonomous();
     while (true) {
         // Read joysticks
 		// autonomous();
@@ -128,46 +129,14 @@ void opcontrol() {
         int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
         chassis.arcade(forwardSpeed, turnSpeed);
-
         // Jakes test
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            motor20.move(20);
-        } else {
-            motor20.move(0);
-        }
-        
-        // Right Trigger turns claw on
-        static bool claw_state = false;
-        static bool x_was_pressed = false;
-
-        bool x_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
-        if (x_pressed && !x_was_pressed) {
-            claw_state = !claw_state;
-            claw.set_value(claw_state);
-        }
-        x_was_pressed = x_pressed;
-
-        static bool claw_state2 = false;
-        static bool y_was_pressed = false;
-
-        bool y_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
-        if (y_pressed && !y_was_pressed) {
-            claw_state2 = !claw_state2;
-            long_claw.set_value(claw_state2);
-        }
-        y_was_pressed = y_pressed;
-
-        motor1.move_velocity(200);
+       pneumatics_update(master);
+       
+       lift_movement(master);
 
        
-	
-        
-
  
         pros::delay(20);
-
-
-
     }
 }
 

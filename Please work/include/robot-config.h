@@ -15,6 +15,8 @@ extern lemlib::Chassis chassis;
 extern pros::Motor motor1;
 extern pros::Motor motor20;
 
+extern pros::Motor LeftLiftMotor;
+extern pros::Motor RightLiftMotor;
 
 
 extern pros::Imu imu;
