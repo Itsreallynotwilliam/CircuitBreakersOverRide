@@ -3,8 +3,10 @@
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "robot-config.h"
+// The auton selector file is not present in this project, so it is omitted to
+// prevent build failures.
+// #include "static/auton_initial.jerryio.txt"
 // #include "pneumatics.h"
-
 
 /**
  * A callback function for LLEMU's center button.
@@ -13,15 +15,14 @@
  * "I was pressed!" and nothing.
  */
 
-
 void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+  static bool pressed = false;
+  pressed = !pressed;
+  if (pressed) {
+    pros::lcd::set_text(2, "I was pressed!");
+  } else {
+    pros::lcd::clear_line(2);
+  }
 }
 
 /**
@@ -39,32 +40,36 @@ void on_center_button() {
 //     pros::Task screen_task([&]() {
 //         while (true) {
 //             // print robot location to the brain screen
-// 			pros::lcd::print(1, "Rotation Sensor: %i", horizontal_encoder.get_position());
+// 			pros::lcd::print(1, "Rotation Sensor: %i",
+// horizontal_encoder.get_position());
 
 //             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
 //             pros::lcd::print(2, "Y: %f", chassis.getPose().y); // y
-//             pros::lcd::print(3, "Theta: %f", chassis.getPose().theta); // heading
+//             pros::lcd::print(3, "Theta: %f", chassis.getPose().theta); //
+//             heading
 //             // delay to save resources
 //             pros::delay(20);
 //         }
 //     });
 // }
 void initialize() {
-    pros::lcd::initialize();
+  pros::lcd::initialize();
 
-    pros::Task screen_task([]() {
-        while (true) {
-            lemlib::Pose pose = chassis.getPose();
-            pros::lcd::print(1, "X: %.2f  Y: %.2f", pose.x, pose.y);
-            pros::lcd::print(2, "Theta: %.2f", pose.theta);
-            pros::lcd::print(3, "IMU: %.2f", imu.get_heading()); // remove if your IMU has a different name
-            pros::delay(50);
-        }
-    });
+  pros::Task screen_task([]() {
+    while (true) {
+      lemlib::Pose pose = chassis.getPose();
+      pros::lcd::print(1, "X: %.2f  Y: %.2f", pose.x, pose.y);
+      pros::lcd::print(2, "Theta: %.2f", pose.theta);
+      pros::lcd::print(
+          3, "IMU: %.2f",
+          imu.get_heading()); // remove if your IMU has a different name
+      pros::delay(50);
+    }
+  });
 
-    pros::lcd::set_text(5, "Calibrating...");
-    chassis.calibrate();   // keep the robot completely still here
-    pros::lcd::set_text(5, "Calibrated!");
+  pros::lcd::set_text(5, "Calibrating...");
+  chassis.calibrate(); // keep the robot completely still here
+  pros::lcd::set_text(5, "Calibrated!");
 }
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -96,12 +101,12 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-    // 1. Reset the robot's coordinates to 0,0 heading 0
-    chassis.setPose(0, 0, 0); //
+  // 1. Reset the robot's coordinates to 0,0 heading 0
+  chassis.setPose(0, 0, 0); //
 
-    // 2. Command the robot to drive 15 inches straight forward 
-    // Arguments: X-coordinate, Y-coordinate, timeout in milliseconds
-    chassis.moveToPoint(0, 60, 4000); //
+  // 2. Command the robot to drive 15 inches straight forward
+  // Arguments: X-coordinate, Y-coordinate, timeout in milliseconds
+  chassis.moveToPoint(0, 60, 4000); //
 }
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -118,54 +123,45 @@ void autonomous() {
  */
 
 void opcontrol() {
-    autonomous();
-    while (true) {
-        // Read joysticks
-		// autonomous();
-        int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+  autonomous();
+  while (true) {
+    // Read joysticks
+    // autonomous();
+    int forwardSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+    int turnSpeed = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
-        chassis.arcade(forwardSpeed, turnSpeed);
+    chassis.arcade(forwardSpeed, turnSpeed);
 
-        // Jakes test
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            motor20.move(20);
-        } else {
-            motor20.move(0);
-        }
-        
-        // Right Trigger turns claw on
-        static bool claw_state = false;
-        static bool x_was_pressed = false;
-
-        bool x_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
-        if (x_pressed && !x_was_pressed) {
-            claw_state = !claw_state;
-            claw.set_value(claw_state);
-        }
-        x_was_pressed = x_pressed;
-
-        static bool claw_state2 = false;
-        static bool y_was_pressed = false;
-
-        bool y_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
-        if (y_pressed && !y_was_pressed) {
-            claw_state2 = !claw_state2;
-            long_claw.set_value(claw_state2);
-        }
-        y_was_pressed = y_pressed;
-
-        motor1.move_velocity(200);
-
-       
-	
-        
-
- 
-        pros::delay(20);
-
-
-
+    // Jakes test
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+      motor20.move(20);
+    } else {
+      motor20.move(0);
     }
-}
 
+    // Right Trigger turns claw on
+    static bool claw_state = false;
+    static bool x_was_pressed = false;
+
+    bool x_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_X);
+    if (x_pressed && !x_was_pressed) {
+      claw_state = !claw_state;
+      claw.set_value(claw_state);
+    }
+    x_was_pressed = x_pressed;
+
+    static bool claw_state2 = false;
+    static bool y_was_pressed = false;
+
+    bool y_pressed = master.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
+    if (y_pressed && !y_was_pressed) {
+      claw_state2 = !claw_state2;
+      long_claw.set_value(claw_state2);
+    }
+    y_was_pressed = y_pressed;
+
+    motor1.move_velocity(200);
+
+    pros::delay(20);
+  }
+}
