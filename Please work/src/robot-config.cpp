@@ -18,8 +18,8 @@ pros::Motor RightLiftMotor(10,pros::MotorGears::red);
 
 
 //Pneumatics
-pros::adi::Pneumatics claw('G',false);
-pros::adi::Pneumatics long_claw('F',false);
+pros::adi::Pneumatics claw('A',false);
+pros::adi::Pneumatics long_claw('B',false);
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
                               &right_motor_group, // right motor group
@@ -30,10 +30,10 @@ lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
 );
 
 // imu
-pros::Imu imu(12);
+pros::Imu imu(7);
 // horizontal tracking wheel encoder
-pros::Rotation horizontal_encoder(-13);
-pros::Rotation vertical_encoder(15);
+pros::Rotation horizontal_encoder(-13); //todo
+pros::Rotation vertical_encoder(14); //todo
 
 // vertical tracking wheel encoder
 // horizontal tracking wheel

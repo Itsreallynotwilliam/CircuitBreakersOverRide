@@ -7,12 +7,7 @@
 #include "lift.h"
 
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
+
 
 
 void on_center_button() {
@@ -58,7 +53,7 @@ void initialize() {
             lemlib::Pose pose = chassis.getPose();
             pros::lcd::print(1, "X: %.2f  Y: %.2f", pose.x, pose.y);
             pros::lcd::print(2, "Theta: %.2f", pose.theta);
-            pros::lcd::print(3, "IMU: %.2f", imu.get_heading()); // remove if your IMU has a different name
+            pros::lcd::print(3, "IMU: %.2f", imu.get_heading()); 
             pros::delay(50);
         }
     });
@@ -130,9 +125,9 @@ void opcontrol() {
 
         chassis.arcade(forwardSpeed, turnSpeed);
         // Jakes test
-       pneumatics_update(master);
+        pneumatics_update(master);
        
-       lift_movement(master);
+        lift_movement(master);
 
        
  
