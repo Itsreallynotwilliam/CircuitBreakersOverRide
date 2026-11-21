@@ -11,7 +11,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 pros::Motor IntakeMotor(11,pros::MotorGears::green);
 
-pros::Motor ClawMotor(20,pros::MotorGears::green);
+pros::Motor ClawMotor(10,pros::MotorGears::green);
 
 pros::Motor RightLiftMotor(1,pros::MotorGears::green);
 pros::Motor LeftLiftMotor(2,pros::MotorGears::green);
