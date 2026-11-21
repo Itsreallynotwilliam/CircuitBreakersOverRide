@@ -11,6 +11,10 @@ extern pros::MotorGroup left_motor_group;
 extern pros::MotorGroup right_motor_group;
 extern lemlib::Chassis chassis;
 
+extern pros::Motor IntakeMotor;
+
+extern pros::Motor ClawMotor;
+
 //bot motors
 extern pros::Motor motor1;
 extern pros::Motor motor20;

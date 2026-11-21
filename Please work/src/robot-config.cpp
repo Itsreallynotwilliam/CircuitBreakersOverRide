@@ -2,24 +2,25 @@
 #include "main.h"
 #include "pros/abstract_motor.hpp"
 // left motor group
-pros::MotorGroup left_motor_group({-1, -2, -3}, pros::MotorGears::green);
+pros::MotorGroup left_motor_group({-6, -7, -8}, pros::MotorGears::green);
 // right motor group
-pros::MotorGroup right_motor_group({4, 5, 6}, pros::MotorGears::green);
+pros::MotorGroup right_motor_group({3, 4, 5}, pros::MotorGears::green);
 
 //controller 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
+pros::Motor IntakeMotor(11,pros::MotorGears::green);
 
+pros::Motor ClawMotor(20,pros::MotorGears::green);
 
-
-pros::Motor LeftLiftMotor(9,pros::MotorGears::red);
-pros::Motor RightLiftMotor(10,pros::MotorGears::red);
+pros::Motor RightLiftMotor(1,pros::MotorGears::green);
+pros::Motor LeftLiftMotor(2,pros::MotorGears::green);
 
 
 
 //Pneumatics
-pros::adi::Pneumatics claw('A',false);
-pros::adi::Pneumatics long_claw('B',false);
+pros::adi::Pneumatics claw('A',true);
+pros::adi::Pneumatics long_claw('H',true);
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
                               &right_motor_group, // right motor group

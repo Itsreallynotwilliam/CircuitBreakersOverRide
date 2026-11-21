@@ -1,4 +1,6 @@
 #include "main.h"
+#include "intake.h"
+#include "claw.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/misc.h"
 #include "pros/misc.hpp"
@@ -129,8 +131,11 @@ void opcontrol() {
        
         lift_movement(master);
 
+        intakein(master);
        
- 
+        claw_update(master);
+
+
         pros::delay(20);
     }
 }
